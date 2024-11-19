@@ -1,37 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Hotel Management System</title>
-</head>
-<body>
-    <h1>Hotel Management System</h1>
-    <h2>Rooms</h2>
-    <form id="addRoomForm">
-        <input type="text" id="roomNumber" placeholder="Room Number" required>
-        <input type="text" id="roomType" placeholder="Room Type" required>
-        <input type="number" id="roomPrice" placeholder="Price" required>
-        <button type="submit">Add Room</button>
-    </form>
-    <div id="roomsList"></div>
+from flask import Flask, request, jsonify
+import sqlite3
 
-    <script>
-        document.getElementById('addRoomForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const roomData = {
-                room_number: document.getElementById('roomNumber').value,
-                type: document.getElementById('roomType').value,
-                price: parseFloat(document.getElementById('roomPrice').value),
-                availability: true
-            };
-            const response = await fetch('/rooms', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(roomData)
-            });
-            const result = await response.json();
-            alert(result.message);
-        });
-    </script>
-</body>
-</html>
+app = Flask(__name__)
+
+# Database initialization
+def init_db():
+    with sqlite3.connect('hotel.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS rooms (
+            id INTEGER PRIMARY KEY,
+            room_number TEXT UNIQUE,
+            type TEXT,
+            price REAL,
+            availability BOOLEAN
+        )''')
+        conn.commit()
+
+@app.route('/rooms', methods=['POST'])
+def create_room():
+    data = request.json
+    with sqlite3.connect('hotel.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO rooms (room_number, type, price, availability) VALUES (?, ?, ?, ?)",
+                       (data['room_number'], data['type'], data['price'], data['availability']))
+        conn.commit()
+    return jsonify({"message": "Room added successfully!"}), 201
+
+@app.route('/rooms', methods=['GET'])
+def get_rooms():
+    with sqlite3.connect('hotel.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM rooms")
+        rooms = cursor.fetchall()
+    return jsonify(rooms), 200
+
+# Additional endpoints for update and delete...
+
+if __name__ == "__main__":
+    init_db()
+    app.run(debug=True)
