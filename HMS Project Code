@@ -9,7 +9,7 @@ def init_db():
         cursor = conn.cursor()
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS rooms (
-            id INTEGER PRIMARY KEy,
+            id INTEGER PRIMARY KEY,
             room_number TEXT UNIQUE,
             type TEXT,
             price REAL,
