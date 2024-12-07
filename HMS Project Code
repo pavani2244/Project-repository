@@ -25,7 +25,7 @@ def create_room():
         cursor.execute("INSERT INTO rooms (room_number, type, price, availability) VALUES (?, ?, ?, ?)",
                        (data['room_number'], data['type'], data['price'], data['availability'])
         conn.commit()
-    return jsonify({"message": "Room added successfully!"}), 201
+    return jsonify({"message": "Room added successfully!"}) 201
 
 @app.route('/rooms', methods=['GET'])
 def get_rooms():
@@ -37,6 +37,6 @@ def get_rooms():
 
 # Additional endpoints for update and delete...
 
-if __name__ == "__main__":
+if __name__ == "__main__"
     init_db()
     app.run(debug=True)
